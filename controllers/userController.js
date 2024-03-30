@@ -6,7 +6,7 @@ import getDataUri from "../utils/dataUri.js";
 import cloudinary from "cloudinary";
 import { myCache } from "../app.js";
 import { sendEmail } from "../utils/sendEmail.js";
-import crypto from "crypto"
+import crypto from "crypto";
 const registerUser = asyncHandler(async (req, res, next) => {
   const file = req.file;
   const { username, email, password, gender } = req.body;
@@ -111,24 +111,23 @@ const changePassword = asyncHandler(async (req, res, next) => {
   });
 });
 
+const forgetPassword = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
 
-const forgetPassword = asyncHandler(async(req,res,next)=>{
-const {email}=req.body;
-
-const user = await User.findOne({email})
-if(!user) return next(new ErrorHandler("please enter email",400))
-const resetToken=await user.getResetToken();
-await user.save();
-const url = `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`;
-const message = `Click on the link to reset your password.${url}. if you have not requested then please ignore`;
-await sendEmail(user.email, "CourseBundler REset Password", message);
-res.status(200).json({
-  success: true,
-  message: `Reset Token has been sent to ${user.email}`,
+  const user = await User.findOne({ email });
+  if (!user) return next(new ErrorHandler("please enter email", 400));
+  const resetToken = await user.getResetToken();
+  await user.save();
+  const url = `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`;
+  const message = `Click on the link to reset your password.${url}. if you have not requested then please ignore`;
+  await sendEmail(user.email, "CourseBundler REset Password", message);
+  res.status(200).json({
+    success: true,
+    message: `Reset Token has been sent to ${user.email}`,
+  });
 });
-})
 
- const resetPassword = asyncHandler(async (req, res, next) => {
+const resetPassword = asyncHandler(async (req, res, next) => {
   const { token } = req.params;
 
   const resetPasswordToken = crypto
@@ -171,6 +170,19 @@ const getAllUsers = asyncHandler(async (req, res, next) => {
   });
 });
 
+const updateUserRole = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) return next(new ErrorHandler("user not found", 404));
+  if (user.role === "user") {
+    user.role = "admin";
+  } else user.role = "user";
+  await user.save();
+  res.status(200).json({
+    success: true,
+    message: "Role Updated",
+  });
+});
+
 export {
   registerUser,
   loginUser,
@@ -180,5 +192,6 @@ export {
   changePassword,
   updateProfilePicture,
   forgetPassword,
-  resetPassword
+  resetPassword,
+  updateUserRole,
 };

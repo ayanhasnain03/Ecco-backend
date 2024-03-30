@@ -39,10 +39,10 @@ const userSchema = mongoose.Schema(
     //   type: Date,
     //   // required: [true, "Please enter Date of birth"],
     // },
-    isAdmin: {
-      type: Boolean,
-      required: true,
-      default: false,
+    role: {
+      type: String,
+      enum: ["admin", "user"],
+      default: "user",
     },
     resetPasswordToken: String,
     resetPasswordExpire: String,
