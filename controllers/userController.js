@@ -5,6 +5,7 @@ import { sendToken } from "../utils/sendToken.js";
 import getDataUri from "../utils/dataUri.js";
 import cloudinary from "cloudinary";
 import { myCache } from "../app.js";
+import { sendEmail } from "../utils/sendEmail.js";
 
 const registerUser = asyncHandler(async (req, res, next) => {
   const file = req.file;
@@ -110,6 +111,24 @@ const changePassword = asyncHandler(async (req, res, next) => {
   });
 });
 
+
+const forgetPassword = asyncHandler(async(req,res,next)=>{
+const {email}=req.body;
+
+const user = await User.findOne({email})
+if(!user) return next(new ErrorHandler("please enter email",400))
+const resetToken=await user.getResetToken();
+await user.save();
+const url = `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`;
+const message = `Click on the link to reset your password.${url}. if you have not requested then please ignore`;
+await sendEmail(user.email, "CourseBundler REset Password", message);
+res.status(200).json({
+  success: true,
+  message: `Reset Token has been sent to ${user.email}`,
+});
+})
+
+
 const getAllUsers = asyncHandler(async (req, res, next) => {
   let user;
   if (myCache.has("getAllUser")) user = JSON.parse(myCache.get("getAllUsers"));
@@ -130,5 +149,6 @@ export {
   getAllUsers,
   updateProfile,
   changePassword,
-  updateProfilePicture
+  updateProfilePicture,
+  forgetPassword
 };
