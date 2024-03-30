@@ -75,7 +75,23 @@ const updateProfile = asyncHandler(async(req,res,next)=>{
 })
 
 
+const changePassword = asyncHandler(async(req,res,next)=>{
+  const {newPassword,oldPassword}=req.body;
+  if (!oldPassword || !newPassword)
+  return next(new ErrorHandler("Please Add All Fields", 400));
 
+  const user = await User.findById(req.user._id).select("+password")
+const isMatch = await user.comparePassword(oldPassword)
+if (!isMatch){
+  return next(new ErrorHandler("Old Password Inccorect", 400));
+} 
+user.password = newPassword;
+await user.save();
+res.status(200).json({
+  success: true,
+  message: "Password Changed Successfully",
+});
+})
 
 
 
@@ -95,4 +111,4 @@ const getAllUsers = asyncHandler(async (req, res, next) => {
 
 
 
-export { registerUser,loginUser,getMyProfile, getAllUsers,updateProfile};
+export { registerUser,loginUser,getMyProfile, getAllUsers,updateProfile,changePassword};
