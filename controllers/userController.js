@@ -6,7 +6,7 @@ import getDataUri from "../utils/dataUri.js";
 import cloudinary from "cloudinary";
 import { myCache } from "../app.js";
 import { sendEmail } from "../utils/sendEmail.js";
-
+import crypto from "crypto"
 const registerUser = asyncHandler(async (req, res, next) => {
   const file = req.file;
   const { username, email, password, gender } = req.body;
@@ -128,6 +128,35 @@ res.status(200).json({
 });
 })
 
+ const resetPassword = asyncHandler(async (req, res, next) => {
+  const { token } = req.params;
+
+  const resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: {
+      $gt: Date.now(),
+    },
+  });
+  if (!user)
+    return next(new ErrorHandler("Token is Invaild and has been expired"));
+
+  user.password = req.body.password;
+
+  user.resetPasswordExpire = undefined;
+  user.resetPasswordToken = undefined;
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Password Change Successfully",
+  });
+});
 
 const getAllUsers = asyncHandler(async (req, res, next) => {
   let user;
@@ -150,5 +179,6 @@ export {
   updateProfile,
   changePassword,
   updateProfilePicture,
-  forgetPassword
+  forgetPassword,
+  resetPassword
 };

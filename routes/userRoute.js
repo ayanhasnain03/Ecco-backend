@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllUsers, getMyProfile, loginUser, registerUser, updateProfile,changePassword, updateProfilePicture, forgetPassword } from "../controllers/userController.js";
+import { getAllUsers, getMyProfile, loginUser, registerUser, updateProfile,changePassword, updateProfilePicture, forgetPassword, resetPassword } from "../controllers/userController.js";
 import fileUpload from "../middlewares/multer.js";
 import { isAuthenticatedUser } from "../middlewares/auth.js";
 
@@ -12,5 +12,6 @@ router.route("/updateprofile").put(isAuthenticatedUser,updateProfile)
 router.route("/updateprofileimage").put(isAuthenticatedUser,fileUpload,updateProfilePicture)
 router.route("/changepassword").put(isAuthenticatedUser,changePassword)
 router.route("/forgetpassword").post(forgetPassword)
+router.route("/resetpassword/:token").put(resetPassword)
 
 export default router;
