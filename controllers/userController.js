@@ -60,6 +60,25 @@ const getMyProfile = asyncHandler(async (req, res, next) => {
   });
 });
 
+const updateProfile = asyncHandler(async(req,res,next)=>{
+  const user = await User.findById(req.user._id);
+  if(user){
+    user.username=req.body.username || user.username;
+    user.email=req.body.email || user.email;
+    user.dob=req.body.dob || user.dob;
+    user.gender=req.body.gender || user.gender;
+  }
+  await user.save();
+  res.status(200).json({
+   message:"Profile Updated Successfully"
+  })
+})
+
+
+
+
+
+
 const getAllUsers = asyncHandler(async (req, res, next) => {
   let user;
   if (myCache.has("getAllUser"))
@@ -74,4 +93,6 @@ const getAllUsers = asyncHandler(async (req, res, next) => {
   });
 });
 
-export { registerUser,loginUser,getMyProfile, getAllUsers};
+
+
+export { registerUser,loginUser,getMyProfile, getAllUsers,updateProfile};

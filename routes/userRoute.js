@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllUsers, getMyProfile, loginUser, registerUser } from "../controllers/userController.js";
+import { getAllUsers, getMyProfile, loginUser, registerUser, updateProfile } from "../controllers/userController.js";
 import fileUpload from "../middlewares/multer.js";
 import { isAuthenticatedUser } from "../middlewares/auth.js";
 
@@ -8,5 +8,6 @@ router.route("/new").post(fileUpload,registerUser);
 router.route("/login").post(loginUser);
 router.route("/me").get(isAuthenticatedUser,getMyProfile);
 router.route("/").get(getAllUsers);
+router.route("/updateprofile").put(isAuthenticatedUser,updateProfile)
 
 export default router;
