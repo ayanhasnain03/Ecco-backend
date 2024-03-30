@@ -45,7 +45,19 @@ const loginUser = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler("Incorrect Email or  Password", 401));
   sendToken(res, user, `Welcome back ${user.name}`, 200);
 });
-
+const logoutUser = asyncHandler(async(req,res,next)=>{
+  res.status(200)
+  .cookie("token",null,{
+    expires: new Date(Date.now()),
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  })
+  .json({
+    success: true,
+    message: "Logged Out",
+  });
+})
 const getMyProfile = asyncHandler(async (req, res, next) => {
   let user;
   if (myCache.has("getMyProfile"))
@@ -205,5 +217,6 @@ export {
   forgetPassword,
   resetPassword,
   updateUserRole,
-  deleteUser
+  deleteUser,
+  logoutUser
 };

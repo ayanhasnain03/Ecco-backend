@@ -11,6 +11,7 @@ import {
   resetPassword,
   updateUserRole,
   deleteUser,
+  logoutUser,
 } from "../controllers/userController.js";
 import fileUpload from "../middlewares/multer.js";
 import { authorizeAdmin, isAuthenticatedUser } from "../middlewares/auth.js";
@@ -18,6 +19,7 @@ import { authorizeAdmin, isAuthenticatedUser } from "../middlewares/auth.js";
 const router = express.Router();
 router.route("/new").post(fileUpload, registerUser);
 router.route("/login").post(loginUser);
+router.route("/logout").post(logoutUser);
 router.route("/me").get(isAuthenticatedUser, getMyProfile);
 router.route("/updateprofile").put(isAuthenticatedUser, updateProfile);
 router
