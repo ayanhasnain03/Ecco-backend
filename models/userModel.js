@@ -60,4 +60,7 @@ userSchema.methods.getJWTToken = function () {
     expiresIn: "15d",
   });
 };
+userSchema.methods.comparePassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 export const User = mongoose.model("Product", userSchema);

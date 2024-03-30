@@ -4,6 +4,7 @@ import ErrorHandler from "../utils/errorHandler.js";
 import { sendToken } from "../utils/sendToken.js";
 import getDataUri from "../utils/dataUri.js"
 import cloudinary from "cloudinary";
+
 const registerUser = asyncHandler(async (req, res, next) => {
   const file = req.file;
   const { username, email, password, gender } = req.body;
@@ -27,4 +28,20 @@ const mycloud = await cloudinary.v2.uploader.upload(fileUri.content)
   });
   sendToken(res, user, "Registerd Succesfully", 201);
 });
-export { registerUser };
+
+const loginUser = asyncHandler(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password)
+    return next(new ErrorHandler("Please Add All Fields", 400));
+
+  const user = await User.findOne({ email }).select("+password");
+
+  if (!user) return next(new ErrorHandler("User Doesn't Exist", 401));
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch)
+    return next(new ErrorHandler("Incorrect Email or  Password", 401));
+  sendToken(res, user, `Welcome back ${user.name}`, 200);
+});
+
+export { registerUser,loginUser };
