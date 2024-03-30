@@ -44,4 +44,13 @@ const loginUser = asyncHandler(async (req, res, next) => {
   sendToken(res, user, `Welcome back ${user.name}`, 200);
 });
 
-export { registerUser,loginUser };
+
+const getMyProfile = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user._id);
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+export { registerUser,loginUser,getMyProfile };
