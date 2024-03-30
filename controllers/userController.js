@@ -4,6 +4,7 @@ import ErrorHandler from "../utils/errorHandler.js";
 import { sendToken } from "../utils/sendToken.js";
 import getDataUri from "../utils/dataUri.js"
 import cloudinary from "cloudinary";
+import { myCache } from "../app.js";
 
 const registerUser = asyncHandler(async (req, res, next) => {
   const file = req.file;
@@ -46,11 +47,31 @@ const loginUser = asyncHandler(async (req, res, next) => {
 
 
 const getMyProfile = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user._id);
-  res.status(200).json({
-    success: true,
-    user,
+  let user;
+  if (myCache.has("getMyProfile"))
+      user = JSON.parse(myCache.get("getMyProfile"));
+  else {
+   user = await User.findById(req.user._id);
+      myCache.set("getMyProfile", JSON.stringify(user));
+  }
+  return res.status(200).json({
+      success: true,
+      user
   });
 });
 
-export { registerUser,loginUser,getMyProfile };
+const getAllUsers = asyncHandler(async (req, res, next) => {
+  let user;
+  if (myCache.has("getAllUser"))
+      user = JSON.parse(myCache.get("getAllUsers"));
+  else {
+   user = await User.find({});
+      myCache.set("getAllUsers", JSON.stringify(user));
+  }
+  return res.status(200).json({
+      success: true,
+      user
+  });
+});
+
+export { registerUser,loginUser,getMyProfile, getAllUsers};
