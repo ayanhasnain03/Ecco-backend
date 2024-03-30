@@ -183,6 +183,17 @@ const updateUserRole = asyncHandler(async (req, res, next) => {
   });
 });
 
+ const deleteUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) return next(new ErrorHandler("user not found", 404));
+  await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+  await user.deleteOne();
+  res.status(200).json({
+    success: true,
+    message: "User Delete Succesfully",
+  });
+});
+
 export {
   registerUser,
   loginUser,
@@ -194,4 +205,5 @@ export {
   forgetPassword,
   resetPassword,
   updateUserRole,
+  deleteUser
 };
