@@ -74,4 +74,4 @@ userSchema.methods.getResetToken = function () {
     this.resetPasswordExpire=Date.now()+ 15 * 60 * 1000;
   return resetToken;
 };
-export const User = mongoose.model("Product", userSchema);
+export const User = mongoose.model("User", userSchema);

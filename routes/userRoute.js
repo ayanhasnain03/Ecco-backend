@@ -29,8 +29,12 @@ router.route("/changepassword").put(isAuthenticatedUser, changePassword);
 router.route("/forgetpassword").post(forgetPassword);
 router.route("/resetpassword/:token").put(resetPassword);
 
-router.route("/all").get(isAuthenticatedUser,authorizeAdmin,getAllUsers);
-router.route("/delete/:id").delete(isAuthenticatedUser,authorizeAdmin,deleteUser);
-router.route("/changerole/:id").put(isAuthenticatedUser,authorizeAdmin,updateUserRole);
+router.route("/all").get(isAuthenticatedUser, authorizeAdmin, getAllUsers);
+router
+  .route("/delete/:id")
+  .delete(isAuthenticatedUser, authorizeAdmin, deleteUser);
+router
+  .route("/changerole/:id")
+  .put(isAuthenticatedUser, authorizeAdmin, updateUserRole);
 
 export default router;
