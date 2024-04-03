@@ -107,4 +107,22 @@ invalidateCache({
     product
   });
 })
-export { createProduct,getAllProduct,getProductById,updateProduct };
+const updateProductImage = asyncHandler(async(req,res,next)=>{
+  const file = req.file;
+  const id=req.params.id
+  if(!file) return next(new ErrorHandler("please choose image",400));
+  const product = await Product.findById(id)
+const fileUri=getDataUri(file)
+const mycloud = await cloudinary.v2.uploader.upload(fileUri.content);
+await cloudinary.v2.uploader.destroy(product.image.public_id);
+product.image = {
+  public_id: mycloud.public_id,
+  url: mycloud.secure_url,
+};
+await product.save();
+res.status(200).json({
+  success: true,
+  message: "Profile Picture Change Successfully",
+});
+})
+export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage };
