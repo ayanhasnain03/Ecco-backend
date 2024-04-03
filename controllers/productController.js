@@ -158,7 +158,6 @@ if(!product) return next (new ErrorHandler("product not found",404))
         res.status(400);
         return next(new ErrorHandler("Product already reviewed",400));
       }
-
       const review = {
         name: req.user.username,
         rating: Number(rating),
@@ -177,6 +176,41 @@ if(!product) return next (new ErrorHandler("product not found",404))
       await product.save();
       res.status(201).json({ message: "Review added" });
     }
-  
 });
-export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview };
+
+
+const deleteReview = asyncHandler(async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+        return next(new ErrorHandler('Product not found', 404));
+    }
+
+    const reviewIndex = product.reviews.findIndex(review => review.user.toString() === req.user._id.toString());
+    if (reviewIndex === -1) {
+        return next(new ErrorHandler('Review not found', 404));
+    }
+
+    // Remove the review from the array
+    product.reviews.splice(reviewIndex, 1);
+
+    // Recalculate the average rating and number of reviews
+    product.numReviews = product.reviews.length;
+    if (product.numReviews === 0) {
+        product.rating = 0;
+    } else {
+        const totalRating = product.reviews.reduce((acc, item) => item.rating + acc, 0);
+        product.rating = totalRating / product.numReviews;
+    }
+
+    await product.save();
+
+    res.status(200).json({ message: 'Review deleted successfully' });
+} catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+}
+});
+
+
+
+export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview,deleteReview };
