@@ -4,6 +4,7 @@ import getDataUri from "../utils/dataUri.js";
 import cloudinary from "cloudinary"
 import ErrorHandler from "../utils/errorHandler.js";
 import { myCache } from "../app.js";
+import { invalidateCache } from "../utils/features.js";
 
 const createProduct = asyncHandler(async (req, res, next) => {
   const file = req.file;
@@ -82,6 +83,28 @@ return res.status(200).json({
 })
 
 const updateProduct = asyncHandler(async(req,res,next)=>{
-  
+const id=req.params.id
+const {name, description, price, category, quantity, brand}=req.body
+const product = await Product.findById(id)
+
+if(!product) return next(new ErrorHandler("product not found",400))
+
+if(name)product.name=name
+if(description)product.description=description
+if(price)product.price=price
+if(category)product.category=category
+if(quantity) product.quantity=quantity
+if(brand) product.brand=brand
+await product.save()
+invalidateCache({
+  product: true,
+  productId: String(product._id),
+  admin: true,
+});
+ res.status(200).json({
+    success: true,
+    message: "product Update success",
+    product
+  });
 })
-export { createProduct,getAllProduct,getProductById };
+export { createProduct,getAllProduct,getProductById,updateProduct };
