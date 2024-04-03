@@ -1,5 +1,5 @@
 import express from "express"
-import { addProductReview, createProduct,deleteProduct,deleteReview,getAllProduct, getProductById, updateProduct, updateProductImage } from "../controllers/productController.js";
+import { addProductReview, createProduct,deleteProduct,deleteReview,getAllCategories,getAllProduct, getProductById, getProductReview, updateProduct, updateProductImage } from "../controllers/productController.js";
 import fileUpload from "../middlewares/multer.js";
 import { authorizeAdmin, isAuthenticatedUser } from "../middlewares/auth.js";
 
@@ -12,6 +12,10 @@ router.route("/updateimage/:id").put(isAuthenticatedUser,authorizeAdmin,fileUplo
 
 router.route("/addreview/:id").post(isAuthenticatedUser,addProductReview)
 router.route("/deletereview/:id").delete(isAuthenticatedUser,deleteReview)
+router.route("/review/:id").get(isAuthenticatedUser,getProductReview)
+
+
+router.route("/categories/all").get(isAuthenticatedUser,getAllCategories)
 
 
 

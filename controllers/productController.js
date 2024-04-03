@@ -31,6 +31,22 @@ const mycloud = await cloudinary.v2.uploader.upload(fileUri.content)
 });
 
 
+const getAllCategories = asyncHandler(async(req,res,next)=>{
+  let categories;
+
+  if (myCache.has("categories"))
+    categories = JSON.parse(myCache.get("categories"));
+  else {
+    categories = await Product.distinct("category");
+    myCache.set("categories", JSON.stringify(categories));
+  }
+
+  return res.status(200).json({
+    success: true,
+    categories,
+  });
+})
+
  const getAllProduct = asyncHandler(
   async (req, res, next) => {
 const { search, sort, category, price } = req.query;
@@ -178,6 +194,23 @@ if(!product) return next (new ErrorHandler("product not found",404))
     }
 });
 
+const getProductReview = asyncHandler(async(req,res,next)=>{
+
+  const id = req.params.id
+  let reviews;
+
+  if (myCache.has("reviews"))
+  reviews = JSON.parse(myCache.get("reviews"));
+else{
+  reviews = await Product.findById(id).distinct("reviews")  
+  myCache.set("reviews", JSON.stringify(reviews));
+
+}
+return res.status(200).json({
+  success: true,
+  reviews,
+});
+})
 
 const deleteReview = asyncHandler(async (req, res, next) => {
   try {
@@ -213,4 +246,5 @@ const deleteReview = asyncHandler(async (req, res, next) => {
 
 
 
-export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview,deleteReview };
+
+export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview,deleteReview,getAllCategories,getProductReview };
