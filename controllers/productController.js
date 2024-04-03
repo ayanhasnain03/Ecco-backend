@@ -122,7 +122,20 @@ product.image = {
 await product.save();
 res.status(200).json({
   success: true,
-  message: "Profile Picture Change Successfully",
+  message: "image chanage successfully",
 });
 })
-export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage };
+const deleteProduct = asyncHandler(async(req,res,next)=>{
+  const id=req.params.id
+  const product = await Product.findById(id)
+
+await cloudinary.v2.uploader.destroy(product.image.public_id);
+
+await product.deleteOne();
+res.status(200).json({
+  success: true,
+  message: "product deleted",
+});
+})
+
+export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct };
