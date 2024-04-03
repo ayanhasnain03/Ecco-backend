@@ -1,26 +1,49 @@
-import express from "express"
-import { addProductReview, createProduct,deleteProduct,deleteReview,getAdminProducts,getAllCategories,getAllProduct, getProductById, getProductReview, getTopProducts, getlatestProducts, updateProduct, updateProductImage } from "../controllers/productController.js";
+import express from "express";
+import {
+  addProductReview,
+  createProduct,
+  deleteProduct,
+  deleteReview,
+  getAdminProducts,
+  getAllCategories,
+  getAllProduct,
+  getProductById,
+  getProductReview,
+  getTopProducts,
+  getlatestProducts,
+  updateProduct,
+  updateProductImage,
+} from "../controllers/productController.js";
 import fileUpload from "../middlewares/multer.js";
 import { authorizeAdmin, isAuthenticatedUser } from "../middlewares/auth.js";
 
-const router = express.Router()
-router.route("/new").post(fileUpload,createProduct)
-router.route("/admin/product").get(getAdminProducts)
-router.route("/topproducts").get(getTopProducts)
-router.route("/latestproducts").get(getlatestProducts)
-router.route("/all").get(getAllProduct)
-router.route("/:id").get(getProductById).put(isAuthenticatedUser,authorizeAdmin,updateProduct).delete(deleteProduct)
-router.route("/updateimage/:id").put(isAuthenticatedUser,authorizeAdmin,fileUpload,updateProductImage)
+const router = express.Router();
 
+//Users
+router.route("/topproducts").get(getTopProducts);
+router.route("/latestproducts").get(getlatestProducts);
+router.route("/all").get(getAllProduct);
+router
+  .route("/:id")
+  //user
+  .get(getProductById)
+  //Admin
+  .put(isAuthenticatedUser, authorizeAdmin, updateProduct)
+  .delete(isAuthenticatedUser, authorizeAdmin,deleteProduct);
 
-router.route("/addreview/:id").post(isAuthenticatedUser,addProductReview)
-router.route("/deletereview/:id").delete(isAuthenticatedUser,deleteReview)
-router.route("/review/:id").get(isAuthenticatedUser,getProductReview)
+router.route("/addreview/:id").post(isAuthenticatedUser, addProductReview);
 
+router.route("/deletereview/:id").delete(isAuthenticatedUser, deleteReview);
 
-router.route("/categories/all").get(isAuthenticatedUser,getAllCategories)
+router.route("/review/:id").get(getProductReview);
 
+//Admin
 
-
+router.route("/new").post(isAuthenticatedUser,authorizeAdmin,fileUpload, createProduct);
+router.route("/admin/products").get(isAuthenticatedUser,authorizeAdmin,getAdminProducts);
+router.route("/categories/all").get(isAuthenticatedUser, getAllCategories);
+router
+  .route("/updateimage/:id")
+  .put(isAuthenticatedUser, authorizeAdmin, fileUpload, updateProductImage);
 
 export default router;

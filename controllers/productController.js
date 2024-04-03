@@ -24,10 +24,11 @@ const mycloud = await cloudinary.v2.uploader.upload(fileUri.content)
       url:mycloud.secure_url
     }
   });
-  res.status(201).json({
-    success: true,
-    message: "Product Created Successfully",
-  });
+  await invalidateCache({product:true});
+    return res.status(201).json({
+      success: true,
+      message: "Product Created Successfully",
+    });
 });
 
 const getAllCategories = asyncHandler(async(req,res,next)=>{
@@ -111,11 +112,7 @@ if(category)product.category=category
 if(quantity) product.quantity=quantity
 if(brand) product.brand=brand
 await product.save()
-invalidateCache({
-  product: true,
-  productId: String(product._id),
-  admin: true,
-});
+await invalidateCache({product:true});
  res.status(200).json({
     success: true,
     message: "product Update success",
@@ -135,6 +132,7 @@ product.image = {
   url: mycloud.secure_url,
 };
 await product.save();
+await invalidateCache({product:true});
 res.status(200).json({
   success: true,
   message: "image chanage successfully",
@@ -149,8 +147,6 @@ await cloudinary.v2.uploader.destroy(product.image.public_id);
 await product.deleteOne();
 invalidateCache({
   product: true,
-  productId: String(product._id),
-  admin: true,
 });
 res.status(200).json({
   success: true,
@@ -188,6 +184,7 @@ if(!product) return next (new ErrorHandler("product not found",404))
         product.reviews.length;
 
       await product.save();
+      await invalidateCache({product:true});
       res.status(201).json({ message: "Review added" });
     }
 });
@@ -235,7 +232,7 @@ const deleteReview = asyncHandler(async (req, res, next) => {
     }
 
     await product.save();
-
+    await invalidateCache({product:true});
     res.status(200).json({ message: 'Review deleted successfully' });
 } catch (error) {
     return next(new ErrorHandler(error.message, 500));
