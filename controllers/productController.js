@@ -267,4 +267,18 @@ const getTopProducts = asyncHandler(async(req,res,next)=>{
   })
 })
 
-export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview,deleteReview,getAllCategories,getProductReview,getAdminProducts,getTopProducts };
+ const getlatestProducts = asyncHandler(async(req,res,next)=>{
+  let products;
+  if (myCache.has("latest-products"))
+  products = JSON.parse(myCache.get("latest-products"));
+else {
+  products = await Product.find({}).sort({ createdAt: -1 }).limit(5);
+  myCache.set("latest-products", JSON.stringify(products));
+}
+  return res.status(200).json({
+    success:true,
+    products
+  })
+})
+
+export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview,deleteReview,getAllCategories,getProductReview,getAdminProducts,getTopProducts,getlatestProducts };
