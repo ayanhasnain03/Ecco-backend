@@ -132,10 +132,51 @@ const deleteProduct = asyncHandler(async(req,res,next)=>{
 await cloudinary.v2.uploader.destroy(product.image.public_id);
 
 await product.deleteOne();
+invalidateCache({
+  product: true,
+  productId: String(product._id),
+  admin: true,
+});
 res.status(200).json({
   success: true,
   message: "product deleted",
 });
 })
 
-export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct };
+
+const addProductReview = asyncHandler(async (req, res,next) => {
+    const { rating, comment } = req.body;
+    const product = await Product.findById(req.params.id);
+if(!product) return next (new ErrorHandler("product not found",404))
+
+    if (product) {
+      const alreadyReviewed = product.reviews.find(
+        (r) => r.user.toString() === req.user._id.toString()
+      );
+
+      if (alreadyReviewed) {
+        res.status(400);
+        return next(new ErrorHandler("Product already reviewed",400));
+      }
+
+      const review = {
+        name: req.user.username,
+        rating: Number(rating),
+        comment,
+        user: req.user._id,
+      };
+
+      product.reviews.push(review);
+
+      product.numReviews = product.reviews.length;
+
+      product.rating =
+        product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+        product.reviews.length;
+
+      await product.save();
+      res.status(201).json({ message: "Review added" });
+    }
+  
+});
+export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview };
