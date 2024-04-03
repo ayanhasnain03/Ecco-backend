@@ -244,7 +244,7 @@ const deleteReview = asyncHandler(async (req, res, next) => {
 
 // Revalidate on New,Update,Delete Product & on New Order
  const getAdminProducts = asyncHandler(async (req, res, next) => {
-  
+
   let products;
   if (myCache.has("all-products"))
     products = JSON.parse(myCache.get("all-products"));
@@ -259,5 +259,12 @@ const deleteReview = asyncHandler(async (req, res, next) => {
   });
 });
 
+const getTopProducts = asyncHandler(async(req,res,next)=>{
+  const topProduct = await Product.find({}).sort({rating: -1}).limit(4);
+  res.status(200).json({
+    success:true,
+    topProduct
+  })
+})
 
-export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview,deleteReview,getAllCategories,getProductReview,getAdminProducts };
+export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview,deleteReview,getAllCategories,getProductReview,getAdminProducts,getTopProducts };
