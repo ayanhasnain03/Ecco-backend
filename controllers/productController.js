@@ -30,7 +30,6 @@ const mycloud = await cloudinary.v2.uploader.upload(fileUri.content)
   });
 });
 
-
 const getAllCategories = asyncHandler(async(req,res,next)=>{
   let categories;
 
@@ -159,7 +158,6 @@ res.status(200).json({
 });
 })
 
-
 const addProductReview = asyncHandler(async (req, res,next) => {
     const { rating, comment } = req.body;
     const product = await Product.findById(req.params.id);
@@ -244,7 +242,22 @@ const deleteReview = asyncHandler(async (req, res, next) => {
 }
 });
 
+// Revalidate on New,Update,Delete Product & on New Order
+ const getAdminProducts = asyncHandler(async (req, res, next) => {
+  
+  let products;
+  if (myCache.has("all-products"))
+    products = JSON.parse(myCache.get("all-products"));
+  else {
+    products = await Product.find({});
+    myCache.set("all-products", JSON.stringify(products));
+  }
+
+  return res.status(200).json({
+    success: true,
+    products,
+  });
+});
 
 
-
-export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview,deleteReview,getAllCategories,getProductReview };
+export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview,deleteReview,getAllCategories,getProductReview,getAdminProducts };
