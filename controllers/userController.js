@@ -23,6 +23,7 @@ const registerUser = asyncHandler(async (req, res, next) => {
     email,
     password,
     gender,
+    dob:Number(34-23-2006),
     avatar: {
       public_id: mycloud.public_id,
       url: mycloud.secure_url,
@@ -33,18 +34,20 @@ const registerUser = asyncHandler(async (req, res, next) => {
 
 const loginUser = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-
   if (!email || !password)
     return next(new ErrorHandler("Please Add All Fields", 400));
 
-  const user = await User.findOne({ email }).select("+password");
+ const user = await User.findOne({email}).select("+password");
 
   if (!user) return next(new ErrorHandler("User Doesn't Exist", 401));
   const isMatch = await user.comparePassword(password);
   if (!isMatch)
-    return next(new ErrorHandler("Incorrect Email or  Password", 401));
-  sendToken(res, user, `Welcome back ${user.name}`, 200);
+    {
+      return next(new ErrorHandler("Incorrect Email or  Password", 401))
+    }
+  sendToken(res, user,`Welcome back ${user.username}`,200);
 });
+
 const logoutUser = asyncHandler(async(req,res,next)=>{
   res.status(200)
   .cookie("token",null,{
@@ -67,8 +70,11 @@ const getMyProfile = asyncHandler(async (req, res, next) => {
     myCache.set("getMyProfile", JSON.stringify(user));
   }
   return res.status(200).json({
-    success: true,
-    user,
+    _id:user._id,
+    username:user.username,
+    email:user.email,
+    gender:user.gender,
+    role:user.role
   });
 });
 

@@ -41,7 +41,7 @@ router.route("/review/:id").get(getProductReview);
 
 router.route("/new").post(isAuthenticatedUser,authorizeAdmin,fileUpload, createProduct);
 router.route("/admin/products").get(isAuthenticatedUser,authorizeAdmin,getAdminProducts);
-router.route("/categories/all").get(isAuthenticatedUser, getAllCategories);
+router.route("/categories/all").get( getAllCategories);
 router
   .route("/updateimage/:id")
   .put(isAuthenticatedUser, authorizeAdmin, fileUpload, updateProductImage);
