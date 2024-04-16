@@ -21,7 +21,7 @@ router.route("/new").post(fileUpload, registerUser);
 router.route("/login").post(loginUser);
 router.route("/logout").post(logoutUser);
 router.route("/me").get(isAuthenticatedUser, getMyProfile);
-router.route("/updateprofile").put(isAuthenticatedUser, updateProfile);
+router.route("/updateprofile").put(isAuthenticatedUser,updateProfile);
 router
   .route("/updateprofileimage")
   .put(isAuthenticatedUser, fileUpload, updateProfilePicture);

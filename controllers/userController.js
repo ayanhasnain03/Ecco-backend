@@ -62,19 +62,18 @@ const logoutUser = asyncHandler(async(req,res,next)=>{
   });
 })
 const getMyProfile = asyncHandler(async (req, res, next) => {
-  let user;
-  if (myCache.has("getMyProfile"))
-    user = JSON.parse(myCache.get("getMyProfile"));
-  else {
-    user = await User.findById(req.user._id);
-    myCache.set("getMyProfile", JSON.stringify(user));
-  }
+ 
+
+  const user = await User.findById(req.user._id);
+ 
   return res.status(200).json({
     _id:user._id,
     username:user.username,
     email:user.email,
     gender:user.gender,
-    role:user.role
+    role:user.role,
+    avatar:user.avatar,
+    createdAt:user.createdAt,
   });
 });
 
@@ -95,7 +94,7 @@ const updateProfile = asyncHandler(async (req, res, next) => {
 const updateProfilePicture = asyncHandler(async (req, res, next) => {
   const file = req.file;
   const user = await User.findById(req.user._id);
-
+  if(!user) return next (new ErrorHandler("user not found",404))
   const fileUri = getDataUri(file);
   const mycloud = await cloudinary.v2.uploader.upload(fileUri.content);
   await cloudinary.v2.uploader.destroy(user.avatar.public_id);

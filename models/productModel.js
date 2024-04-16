@@ -29,14 +29,14 @@ const productSchema = mongoose.Schema(
       },
     },
     brand: { type: String, required: true },
-    quantity: { type: Number, required: true },
     category: { type: String, required: true },
     description: { type: String, required: true },
     reviews: [reviewSchema],
     rating: { type: Number, required: true, default: 0 },
     numReviews: { type: Number, required: true, default: 0 },
     price: { type: Number, required: true, default: 0 },
-    countInStock: { type: Number, required: true, default: 0 },
+    quantity: { type: Number, required: true, default: 1 },
+  stock: { type: Number, required: true, default: 0 },
   },
   { timestamps: true }
 );

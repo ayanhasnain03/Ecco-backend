@@ -39,7 +39,7 @@ router.route("/review/:id").get(getProductReview);
 
 //Admin
 
-router.route("/new").post(isAuthenticatedUser,authorizeAdmin,fileUpload, createProduct);
+router.route("/new").post(fileUpload, createProduct);
 router.route("/admin/products").get(isAuthenticatedUser,authorizeAdmin,getAdminProducts);
 router.route("/categories/all").get( getAllCategories);
 router

@@ -8,8 +8,8 @@ import { invalidateCache } from "../utils/features.js";
 
 const createProduct = asyncHandler(async (req, res, next) => {
   const file = req.file;
-  const { name, description, price, category, quantity, brand } = req.body;
-  if(!name || !description || !price || !category || !quantity || !brand) return next(new ErrorHandler("Please Enter all fields",400))
+  const { name, description, price, category, brand,stock } = req.body;
+  if(!name || !description || !price || !category || !stock || !brand) return next(new ErrorHandler("Please Enter all fields",400))
 const fileUri = getDataUri(file)
 const mycloud = await cloudinary.v2.uploader.upload(fileUri.content)
   await Product.create({
@@ -17,8 +17,8 @@ const mycloud = await cloudinary.v2.uploader.upload(fileUri.content)
     description,
     price,
     category,
-    quantity,
     brand,
+    stock,
     image:{
       public_id:mycloud.public_id,
       url:mycloud.secure_url
@@ -257,7 +257,7 @@ const deleteReview = asyncHandler(async (req, res, next) => {
 });
 
 const getTopProducts = asyncHandler(async(req,res,next)=>{
-  const topProduct = await Product.find({}).sort({rating: -1}).limit(4);
+  const topProduct = await Product.find({}).sort({rating: -1}).limit(6);
   res.status(200).json({
     success:true,
     topProduct
@@ -269,7 +269,7 @@ const getTopProducts = asyncHandler(async(req,res,next)=>{
   if (myCache.has("latest-products"))
   products = JSON.parse(myCache.get("latest-products"));
 else {
-  products = await Product.find({}).sort({ createdAt: -1 }).limit(5);
+  products = await Product.find({}).sort({ createdAt: -1 }).limit(6);
   myCache.set("latest-products", JSON.stringify(products));
 }
   return res.status(200).json({
