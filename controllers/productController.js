@@ -170,10 +170,12 @@ if(!product) return next (new ErrorHandler("product not found",404))
       }
       const review = {
         name: req.user.username,
+        avatar:req.user.avatar.url,
         rating: Number(rating),
         comment,
         user: req.user._id,
       };
+      console.log(review)
 
       product.reviews.push(review);
 
