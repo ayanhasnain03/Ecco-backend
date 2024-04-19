@@ -154,54 +154,59 @@ res.status(200).json({
 });
 })
 
-const addProductReview = asyncHandler(async (req, res,next) => {
-    const { rating, comment } = req.body;
-    const product = await Product.findById(req.params.id);
-if(!product) return next (new ErrorHandler("product not found",404))
+const addProductReview = asyncHandler(async (req, res, next) => {
+  const { rating, comment } = req.body;
+  const productId = req.params.id;
 
-    if (product) {
+  try {
+      const product = await Product.findById(productId);
+      if (!product) {
+          return next(new ErrorHandler("Product not found", 404));
+      }
+
       const alreadyReviewed = product.reviews.find(
-        (r) => r.user.toString() === req.user._id.toString()
+          (r) => r.user.toString() === req.user._id.toString()
       );
 
       if (alreadyReviewed) {
-        res.status(400);
-        return next(new ErrorHandler("Product already reviewed",400));
+          return next(new ErrorHandler("Product already reviewed", 400));
       }
+
       const review = {
-        name: req.user.username,
-        avatar:req.user.avatar.url,
-        rating: Number(rating),
-        comment,
-        user: req.user._id,
+          name: req.user.username,
+          rating: Number(rating),
+          comment,
+          avatar: req.user.avatar,
+          user: req.user._id,
       };
-      console.log(review)
 
       product.reviews.push(review);
-
       product.numReviews = product.reviews.length;
 
-      product.rating =
-        product.reviews.reduce((acc, item) => item.rating + acc, 0) /
-        product.reviews.length;
+      // Calculate the new average rating
+      const totalRating = product.reviews.reduce((acc, item) => item.rating + acc, 0);
+      product.rating = totalRating / product.reviews.length;
 
       await product.save();
-      await invalidateCache({product:true});
+
+      // Invalidate cache for the product after saving the review
+      await invalidateCache({ product: true, productId });
+
       res.status(201).json({ message: "Review added" });
-    }
+  } catch (error) {
+      return next(new ErrorHandler("Failed to add review", 500));
+  }
 });
 
-const getProductReview = asyncHandler(async(req,res,next)=>{
 
+const getProductReview = asyncHandler(async(req,res,next)=>{
   const id = req.params.id
   let reviews;
-
   if (myCache.has("reviews"))
   reviews = JSON.parse(myCache.get("reviews"));
 else{
   reviews = await Product.findById(id).distinct("reviews")  
   myCache.set("reviews", JSON.stringify(reviews));
-
 }
 return res.status(200).json({
   success: true,

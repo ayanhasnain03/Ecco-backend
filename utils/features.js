@@ -7,6 +7,7 @@ export const invalidateCache = async ({
   userId,
   orderId,
   productId,
+  review,
 }) => {
   if (product) {
     const productKeys= [
@@ -30,7 +31,13 @@ export const invalidateCache = async ({
     ];
     myCache.del(ordersKeys);
   }
-  if (admin) {
-
+  if (review) {
+    const reviewKeys = [
+      // Define cache keys related to reviews here
+      // For example, if you cache individual product reviews, include those keys here
+      `product-review-${productId}`, // Assuming you cache individual product reviews
+      // Add more review cache keys if needed
+    ];
+    myCache.del(reviewKeys);
   }
 };

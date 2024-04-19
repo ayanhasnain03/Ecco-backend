@@ -4,13 +4,22 @@ const { ObjectId } = mongoose.Schema;
 const reviewSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
+   avatar: {
+      public_id: {
+        type: String,
+        required: true,
+      },
+      url: {
+        type: String,
+        required: true,
+      },
+    },
     rating: { type: Number, required: true },
     comment: { type: String, required: true },
-    avatar:{type:String,required:true},
     user: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      type: mongoose.Schema.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   { timestamps: true }
