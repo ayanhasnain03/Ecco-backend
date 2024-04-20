@@ -215,15 +215,16 @@ return res.status(200).json({
 })
 
 const deleteReview = asyncHandler(async (req, res, next) => {
+  const productId = req.params.id;
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
-        return next(new ErrorHandler('Product not found', 404));
+      return next(new ErrorHandler('Product not found', 404));
     }
 
     const reviewIndex = product.reviews.findIndex(review => review.user.toString() === req.user._id.toString());
     if (reviewIndex === -1) {
-        return next(new ErrorHandler('Review not found', 404));
+      return next(new ErrorHandler('Review not found', 404));
     }
 
     // Remove the review from the array
@@ -232,19 +233,24 @@ const deleteReview = asyncHandler(async (req, res, next) => {
     // Recalculate the average rating and number of reviews
     product.numReviews = product.reviews.length;
     if (product.numReviews === 0) {
-        product.rating = 0;
+      product.rating = 0;
     } else {
-        const totalRating = product.reviews.reduce((acc, item) => item.rating + acc, 0);
-        product.rating = totalRating / product.numReviews;
+      const totalRating = product.reviews.reduce((acc, item) => item.rating + acc, 0);
+      product.rating = totalRating / product.numReviews;
     }
 
     await product.save();
-    await invalidateCache({product:true});
+    
+    // Call invalidateCache
+    await invalidateCache({ product: true, productId });
+
     res.status(200).json({ message: 'Review deleted successfully' });
-} catch (error) {
+  } catch (error) {
+    console.error('Error deleting review:', error);
     return next(new ErrorHandler(error.message, 500));
-}
+  }
 });
+
 
 // Revalidate on New,Update,Delete Product & on New Order
  const getAdminProducts = asyncHandler(async (req, res, next) => {
