@@ -256,14 +256,6 @@ const deleteReview = asyncHandler(async (req, res, next) => {
   }
 });
 
-
-
-
-
-
-
-
-
 const getAdminProducts = asyncHandler(
   async (req, res, next) => {
 const { search, sort, category, price } = req.query;
@@ -301,6 +293,24 @@ const totalPage = Math.ceil(filteredProduct.length / limit);
   }
 );
 
+const relatedProduct = asyncHandler(async(req,res,next)=>{
+  const {id}=req.params;
+  let product;
+  if(myCache.has("related-product"))
+  product = JSON.parse(myCache.get("related-product"));
+else{
+  const productById = await Product.findById(id)
+  product = await Product.find({
+   category:productById.category
+ })
+ myCache.set("related-product", JSON.stringify(product));
+
+} 
+  res.status(200).json({
+    success:true,
+    product,
+  })
+})
 const getTopProducts = asyncHandler(async(req,res,next)=>{
   const topProduct = await Product.find({}).sort({rating: -1}).limit(6);
   res.status(200).json({
@@ -323,4 +333,4 @@ else {
   })
 })
 
-export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview,deleteReview,getAllCategories,getProductReview,getAdminProducts,getTopProducts,getlatestProducts };
+export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview,deleteReview,getAllCategories,getProductReview,getAdminProducts,getTopProducts,getlatestProducts,relatedProduct };

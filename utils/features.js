@@ -12,6 +12,7 @@ export const invalidateCache = async ({
   if (product) {
     const productKeys= [
       "latest-products",
+      "related-product",
       "categories",
       "all-products",
     ];

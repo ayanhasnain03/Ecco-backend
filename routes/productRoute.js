@@ -11,6 +11,7 @@ import {
   getProductReview,
   getTopProducts,
   getlatestProducts,
+  relatedProduct,
   updateProduct,
   updateProductImage,
 } from "../controllers/productController.js";
@@ -22,6 +23,7 @@ const router = express.Router();
 //Users
 router.route("/topproducts").get(getTopProducts);
 router.route("/latestproducts").get(getlatestProducts);
+router.route("/related/:id").get(relatedProduct);
 router.route("/all").get(getAllProduct);
 router
   .route("/:id")
