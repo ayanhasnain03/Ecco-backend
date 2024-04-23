@@ -295,17 +295,13 @@ const totalPage = Math.ceil(filteredProduct.length / limit);
 
 const relatedProduct = asyncHandler(async(req,res,next)=>{
   const {id}=req.params;
-  let product;
-  if(myCache.has("related-product"))
-  product = JSON.parse(myCache.get("related-product"));
-else{
-  const productById = await Product.findById(id)
-  product = await Product.find({
-   category:productById.category
- })
- myCache.set("related-product", JSON.stringify(product));
 
-} 
+ 
+  const productById = await Product.findById(id)
+const  product = await Product.find({
+  category:productById.category
+ }).limit(7)
+
   res.status(200).json({
     success:true,
     product,
@@ -332,5 +328,6 @@ else {
     products
   })
 })
+
 
 export { createProduct,getAllProduct,getProductById,updateProduct,updateProductImage,deleteProduct,addProductReview,deleteReview,getAllCategories,getProductReview,getAdminProducts,getTopProducts,getlatestProducts,relatedProduct };

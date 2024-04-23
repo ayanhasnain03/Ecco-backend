@@ -12,6 +12,7 @@ import {
   updateUserRole,
   deleteUser,
   logoutUser,
+  addToFavrourite,
 } from "../controllers/userController.js";
 import fileUpload from "../middlewares/multer.js";
 import { authorizeAdmin, isAuthenticatedUser } from "../middlewares/auth.js";
@@ -36,5 +37,8 @@ router
 router
   .route("/changerole/:id")
   .put(isAuthenticatedUser, authorizeAdmin, updateUserRole);
+router
+  .route("/fav")
+  .post(isAuthenticatedUser, addToFavrourite);
 
 export default router;

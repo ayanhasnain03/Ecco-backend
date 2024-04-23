@@ -7,6 +7,7 @@ import cloudinary from "cloudinary";
 import { myCache } from "../app.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import crypto from "crypto";
+import Product from "../models/productModel.js";
 const registerUser = asyncHandler(async (req, res, next) => {
   const file = req.file;
   const { username, email, password, gender } = req.body;
@@ -211,6 +212,49 @@ const updateUserRole = asyncHandler(async (req, res, next) => {
   });
 });
 
+const addToFavrourite = asyncHandler(async (req, res, next) => {
+
+    // Find the user by ID
+    const user = await User.findById(req.user._id);
+
+    // Check if user exists
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
+
+    // Find the product by ID sent in the request body
+    const product = await Product.findById(req.body._id);
+
+    // Check if the product exists
+    if (!product) {
+      return next(new ErrorHandler("Invalid Product Id", 404));
+    }
+
+    // Check if the product already exists in the user's favourites
+    const itemExist = user.favourite.some((item) => item.product.toString() === product._id.toString());
+
+    // If the product already exists, return an error
+    if (itemExist) {
+      return next(new ErrorHandler("Item Already Exists", 409));
+    }
+
+    // If the product does not exist in the user's favourites, add it
+    user.favourite.push({
+      product: product._id,
+      productImage: product.image.url,
+    });
+
+    // Save the user with the updated favourites list
+    await user.save();
+
+    // Return success response with the added product
+    return res.status(200).json({
+      success: true,
+      product,
+    });
+});
+
+
 export {
   registerUser,
   loginUser,
@@ -223,5 +267,6 @@ export {
   resetPassword,
   updateUserRole,
   deleteUser,
-  logoutUser
+  logoutUser,
+  addToFavrourite
 };

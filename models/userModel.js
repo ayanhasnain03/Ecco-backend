@@ -44,6 +44,12 @@ const userSchema = mongoose.Schema(
       enum: ["admin", "user"],
       default: "user",
     },
+    favourite: [
+    {
+      product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+      productImage: String,
+    },
+  ],
     resetPasswordToken: String,
     resetPasswordExpire: String,
   },
