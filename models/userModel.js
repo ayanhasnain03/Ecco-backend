@@ -48,6 +48,7 @@ const userSchema = mongoose.Schema(
     {
       product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
       productImage: String,
+      productName:String,
     },
   ],
     resetPasswordToken: String,

@@ -74,6 +74,7 @@ const getMyProfile = asyncHandler(async (req, res, next) => {
     gender:user.gender,
     role:user.role,
     avatar:user.avatar,
+    favourite:user.favourite,
     createdAt:user.createdAt,
   });
 });
@@ -241,7 +242,9 @@ const addToFavrourite = asyncHandler(async (req, res, next) => {
     user.favourite.push({
       product: product._id,
       productImage: product.image.url,
+      productName:product.name
     });
+    
 
     // Save the user with the updated favourites list
     await user.save();
