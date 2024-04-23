@@ -13,6 +13,7 @@ import {
   deleteUser,
   logoutUser,
   addToFavrourite,
+  removeFromFavrourite,
 } from "../controllers/userController.js";
 import fileUpload from "../middlewares/multer.js";
 import { authorizeAdmin, isAuthenticatedUser } from "../middlewares/auth.js";
@@ -38,7 +39,10 @@ router
   .route("/changerole/:id")
   .put(isAuthenticatedUser, authorizeAdmin, updateUserRole);
 router
-  .route("/fav")
+  .route("/fav/:id")
   .post(isAuthenticatedUser, addToFavrourite);
+router
+  .route("/removefav/:id")
+  .delete(isAuthenticatedUser, removeFromFavrourite);
 
 export default router;

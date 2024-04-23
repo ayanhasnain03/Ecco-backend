@@ -223,8 +223,7 @@ const addToFavrourite = asyncHandler(async (req, res, next) => {
     }
 
     // Find the product by ID sent in the request body
-    const product = await Product.findById(req.body._id);
-
+    const product = await Product.findById(req.params.id);
     // Check if the product exists
     if (!product) {
       return next(new ErrorHandler("Invalid Product Id", 404));
@@ -254,6 +253,27 @@ const addToFavrourite = asyncHandler(async (req, res, next) => {
     });
 });
 
+const removeFromFavrourite = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user._id);
+  const product = await Product.findById(req.params.id);
+
+  if (!product) return next(new ErrorHandler("Invaild Product Id", 404));
+
+  //Items Doesen't Matches
+  const newFav = user.favourite.filter((item) => {
+    if (item.product.toString() !== product._id.toString()) return item;
+  });
+
+  user.favourite = newFav;
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Remove from Playlist",
+  });
+});
+
 
 export {
   registerUser,
@@ -268,5 +288,6 @@ export {
   updateUserRole,
   deleteUser,
   logoutUser,
-  addToFavrourite
+  addToFavrourite,
+  removeFromFavrourite
 };
