@@ -130,12 +130,12 @@ const changePassword = asyncHandler(async (req, res, next) => {
   });
 });
 
-const forgetPassword = asyncHandler(async (req, res, next) => {
-  const { email } = req.body;
-
-  const user = await User.findOne({ email });
-  if (!user) return next(new ErrorHandler("please enter email", 400));
-  const resetToken = await user.getResetToken();
+const forgetPassword = asyncHandler(async(req,res,next)=>{
+  const {email}=req.body;
+  
+  const user = await User.findOne({email})
+  if(!user) return next(new ErrorHandler("user not exist ",400))
+  const resetToken=await user.getResetToken();
   await user.save();
   const url = `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`;
   const message = `Click on the link to reset your password.${url}. if you have not requested then please ignore`;
@@ -144,7 +144,8 @@ const forgetPassword = asyncHandler(async (req, res, next) => {
     success: true,
     message: `Reset Token has been sent to ${user.email}`,
   });
-});
+  })
+  
 
 const resetPassword = asyncHandler(async (req, res, next) => {
   const { token } = req.params;
@@ -252,14 +253,13 @@ const addToFavrourite = asyncHandler(async (req, res, next) => {
     // Return success response with the added product
     return res.status(200).json({
       success: true,
-      product,
+    message:"Add to favrioute"
     });
 });
 
 const removeFromFavrourite = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user._id);
   const product = await Product.findById(req.params.id);
-
   if (!product) return next(new ErrorHandler("Invaild Product Id", 404));
 
   //Items Doesen't Matches
