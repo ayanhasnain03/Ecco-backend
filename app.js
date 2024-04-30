@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import NodeCache from "node-cache";
 import cors from "cors";
 import bodyParser from "body-parser";
+import Stripe from "stripe";
 const app = express();
 export const myCache = new NodeCache();
 config({ path: "./config/config.env" });
@@ -20,14 +21,18 @@ app.use(
   })
 );
 
+const stripeKey = process.env.STRIPE_KEY || "";
+export const stripe = new Stripe(stripeKey);
 import userRoute from "./routes/userRoute.js";
 import productRoute from "./routes/productRoute.js";
 import orderRoute from "./routes/orderRoute.js";
+import payemntRoute from "./routes/paymentRoute.js";
 import ErrorMiddleware from "./middlewares/Error.js";
 
 app.use("/user", userRoute);
 app.use("/product",productRoute );
 app.use("/order",orderRoute );
+app.use("/payment",payemntRoute );
 
 export default app;
 
