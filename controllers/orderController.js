@@ -26,7 +26,8 @@ const createOrder = await Order.create({
     user:{
         name:user.username,
         email:user.email,
-        avatar:user.avatar.url
+        avatar:user.avatar,
+        userId:user._id,
     },
     orderItems
 })
@@ -35,4 +36,14 @@ res.status(201).json({
     message:"order placed successfully"
 })
 })
-export {createOrder}
+const getMyOrder = asyncHandler(async(req,res,next)=>{
+    const orders =await Order.find(req.user.userId)
+    const myTotalOrders = orders.length
+   if(!orders) return next (new ErrorHandler("Order Not Found!",400))
+res.status(200).json({
+    succsess:true,
+    orders,
+    myTotalOrders
+})
+})
+export {createOrder,getMyOrder}

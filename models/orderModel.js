@@ -24,15 +24,25 @@ const schema = new mongoose.Schema(
         required: true,
       },
     },
-
-user:[
-{
-  name:{type:String,required:true},
-  email:{type:String,required:true},
-  avatar:{type:String,required:true}
-}
-]
-,
+    user: {
+      userId: {
+        type: String,
+        ref: "User",
+        required: true,
+      },
+      name: { type: String, required: true },
+      email: { type: String, required: true },
+      avatar: {
+        public_id: {
+          type: String,
+          required: true,
+        },
+        url: {
+          type: String,
+          required: true,
+        },
+      },
+    },
     subtotal: {
       type: Number,
       required: true,
@@ -77,5 +87,5 @@ user:[
   }
 );
 
- const Order = mongoose.model("Order", schema);
- export default Order
+const Order = mongoose.model("Order", schema);
+export default Order;
