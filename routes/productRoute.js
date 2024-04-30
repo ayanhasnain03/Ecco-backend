@@ -4,7 +4,6 @@ import {
   createProduct,
   deleteProduct,
   deleteReview,
-  getAdminProducts,
   getAllBrands,
   getAllCategories,
   getAllProduct,
@@ -43,7 +42,6 @@ router.route("/review/:id").get(getProductReview);
 //Admin
 
 router.route("/new").post(fileUpload, createProduct);
-router.route("/admin/products").get(isAuthenticatedUser,authorizeAdmin,getAdminProducts);
 router.route("/categories/all").get( getAllCategories);
 router.route("/brand/all").get( getAllBrands);
 router
