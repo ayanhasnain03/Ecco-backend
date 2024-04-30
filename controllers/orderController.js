@@ -2,6 +2,7 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import Order from "../models/orderModel.js"
 import { User } from "../models/userModel.js";
+import { reduceStock } from "../utils/features.js";
 
 const createOrder = asyncHandler(async(req,res,next)=>{
     const user = await User.findById(req.user._id);
@@ -31,6 +32,7 @@ const createOrder = await Order.create({
     },
     orderItems
 })
+await reduceStock(orderItems);
 res.status(201).json({
     succsess:true,
     message:"order placed successfully"
@@ -62,4 +64,40 @@ res.status(200).json({
     orders,
 })
 })
-export {createOrder,getMyOrder,getAllOrders,getOrderById}
+ const processOrder = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const order = await Order.findById(id);
+  
+    if (!order) return next(new ErrorHandler("Order Not Found", 404));
+  
+    switch (order.status) {
+      case "Processing":
+        order.status = "Shipped";
+        break;
+      case "Shipped":
+        order.status = "Delivered";
+        break;
+      default:
+        order.status = "Delivered";
+        break;
+    }
+    await order.save();
+  
+    return res.status(200).json({
+      success: true,
+      message: "Order Processed Successfully",
+    });
+  });
+
+   const deleteOrder = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+  
+    const order = await Order.findById(id);
+    if (!order) return next(new ErrorHandler("Order Not Found", 404));
+    await order.deleteOne();
+    return res.status(200).json({
+      success: true,
+      message: "Order Deleted Successfully",
+    });
+  });
+export {createOrder,getMyOrder,getAllOrders,getOrderById,processOrder,deleteOrder}
