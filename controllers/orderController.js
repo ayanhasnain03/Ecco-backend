@@ -36,14 +36,30 @@ res.status(201).json({
     message:"order placed successfully"
 })
 })
+
 const getMyOrder = asyncHandler(async(req,res,next)=>{
     const orders =await Order.find(req.user.userId)
     const myTotalOrders = orders.length
-   if(!orders) return next (new ErrorHandler("Order Not Found!",400))
 res.status(200).json({
     succsess:true,
     orders,
     myTotalOrders
 })
 })
-export {createOrder,getMyOrder}
+const getAllOrders = asyncHandler(async(req,res,next)=>{
+    const orders =await Order.find({})
+res.status(200).json({
+    succsess:true,
+    orders,
+})
+})
+const getOrderById = asyncHandler(async(req,res,next)=>{
+    const {id}=req.params
+    console.log(id)
+    const orders =await Order.findById(id)
+res.status(200).json({
+    succsess:true,
+    orders,
+})
+})
+export {createOrder,getMyOrder,getAllOrders,getOrderById}
