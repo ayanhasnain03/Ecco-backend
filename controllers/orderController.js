@@ -41,7 +41,8 @@ res.status(201).json({
 })
 
 const getMyOrder = asyncHandler(async(req,res,next)=>{
-    const orders =await Order.find(req.user.userId)
+  const userId = req.user.id;
+    const orders =await Order.find({"user.userId":userId})
     const myTotalOrders = orders.length
 res.status(200).json({
     succsess:true,

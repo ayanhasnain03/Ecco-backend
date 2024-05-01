@@ -25,11 +25,13 @@ const schema = new mongoose.Schema(
       },
     },
     user: {
+
       userId: {
         type: String,
         ref: "User",
         required: true,
       },
+      
       name: { type: String, required: true },
       email: { type: String, required: true },
       avatar: {
