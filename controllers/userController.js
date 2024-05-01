@@ -139,7 +139,7 @@ const forgetPassword = asyncHandler(async(req,res,next)=>{
   await user.save();
   const url = `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`;
   const message = `Click on the link to reset your password.${url}. if you have not requested then please ignore`;
-  await sendEmail(user.email, "CourseBundler REset Password", message);
+  await sendEmail(user.email, "Vertex Reset Password", message);
   res.status(200).json({
     success: true,
     message: `Reset Token has been sent to ${user.email}`,

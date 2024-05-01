@@ -14,12 +14,14 @@ const {shippingInfo,subtotal,
     total,
     orderItems,
 }=req.body;
-
+console.log(orderItems)
 if (!shippingInfo || !orderItems || !user || !subtotal || !tax || !total)
 return next(new ErrorHandler("Please Enter All Fields", 400));
 
 const createOrder = await Order.create({
-    shippingInfo,subtotal,
+    shippingInfo,
+    orderItems,
+    subtotal,
     tax,
     shippingCharges,
     discount,
@@ -30,7 +32,6 @@ const createOrder = await Order.create({
         avatar:user.avatar,
         userId:user._id,
     },
-    orderItems
 })
 await reduceStock(orderItems);
 res.status(201).json({

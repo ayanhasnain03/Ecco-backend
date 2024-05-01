@@ -71,14 +71,24 @@ const schema = new mongoose.Schema(
 
     orderItems: [
       {
+        productId: {
+          type: mongoose.Schema.ObjectId,
+          ref: "Product",
+          required: true,
+        },
         name: String,
-        image: String,
+        image: {
+          public_id: {
+            type: String,
+            required: true,
+          },
+          url: {
+            type: String,
+            required: true,
+          },
+        },
         price: Number,
         quantity: Number,
-        productId: {
-          type: mongoose.Types.ObjectId,
-          ref: "Product",
-        },
       },
     ],
   },
