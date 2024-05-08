@@ -14,7 +14,8 @@ const {shippingInfo,subtotal,
     total,
     orderItems,
 }=req.body;
-console.log(orderItems)
+
+
 if (!shippingInfo || !orderItems || !user || !subtotal || !tax || !total)
 return next(new ErrorHandler("Please Enter All Fields", 400));
 
@@ -50,16 +51,26 @@ res.status(200).json({
     myTotalOrders
 })
 })
-const getAllOrders = asyncHandler(async(req,res,next)=>{
-    const orders =await Order.find({})
-res.status(200).json({
-    succsess:true,
-    orders,
-})
-})
+
+const getAllOrders = asyncHandler(async (req, res, next) => {
+  try {
+    const orders = await Order.find({});
+    res.status(200).json({
+      success: true,
+      orders,
+    });
+  } catch (error) {
+    // Log the error
+    console.error(error);
+    // Send an error response
+    res.status(500).json({
+      success: false,
+      error: 'Internal Server Error',
+    });
+  }
+});
 const getOrderById = asyncHandler(async(req,res,next)=>{
     const {id}=req.params
-    console.log(id)
     const orders =await Order.findById(id)
 res.status(200).json({
     succsess:true,

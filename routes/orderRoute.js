@@ -5,6 +5,6 @@ import {authorizeAdmin, isAuthenticatedUser
 const router = express.Router()
 router.route("/create").post(isAuthenticatedUser,createOrder)
 router.route("/myorders").get(isAuthenticatedUser,getMyOrder)
+router.route("/all").get(isAuthenticatedUser,authorizeAdmin,getAllOrders)
 router.route("/:id").get(isAuthenticatedUser,getOrderById).put(isAuthenticatedUser,authorizeAdmin,processOrder).delete(isAuthenticatedUser,authorizeAdmin,deleteOrder)
-router.route("/allorders").get(isAuthenticatedUser,authorizeAdmin,getAllOrders)
 export default router

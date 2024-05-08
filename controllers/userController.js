@@ -276,6 +276,19 @@ const removeFromFavrourite = asyncHandler(async (req, res, next) => {
     message: "Remove from favourite",
   });
 });
+const contactUs = asyncHandler(async (req, res, next) => {
+  const { name, email, message } = req.body;
+  if (!name || !email || !message)
+    return next(new ErrorHandler("All fields are mandetory", 400));
+  const to = process.env.MY_MAIL;
+  const subject = "Contact from Vertex";
+  const text = `I Am ${name} and my Email is ${email}. \n ${message} `;
+  await sendEmail(to, subject, text);
+  res.status(200).json({
+    success: true,
+    message: "Your Mesage Has Been Sent",
+  });
+});
 
 
 export {
@@ -292,5 +305,6 @@ export {
   deleteUser,
   logoutUser,
   addToFavrourite,
-  removeFromFavrourite
+  removeFromFavrourite,
+  contactUs
 };
