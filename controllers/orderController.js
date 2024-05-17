@@ -37,18 +37,19 @@ const createOrder = await Order.create({
 await reduceStock(orderItems);
 res.status(201).json({
     succsess:true,
-    message:"order placed successfully"
+    message:"order placed successfully",
+    order:createOrder,
 })
 })
 
 const getMyOrder = asyncHandler(async(req,res,next)=>{
   const userId = req.user.id;
     const orders =await Order.find({"user.userId":userId})
-    const myTotalOrders = orders.length
+    const totalOrder = orders.reduce((total, order) => total + order.orderItems.length, 0);
 res.status(200).json({
     succsess:true,
     orders,
-    myTotalOrders
+    totalOrder
 })
 })
 
@@ -71,6 +72,7 @@ const getAllOrders = asyncHandler(async (req, res, next) => {
 });
 const getOrderById = asyncHandler(async(req,res,next)=>{
     const {id}=req.params
+    console.log(id)
     const orders =await Order.findById(id)
 res.status(200).json({
     succsess:true,

@@ -1,5 +1,7 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+const { ObjectId } = mongoose.Schema.Types;
 
+// Changed userId to ObjectId
 const schema = new mongoose.Schema(
   {
     shippingInfo: {
@@ -26,13 +28,18 @@ const schema = new mongoose.Schema(
     },
     user: {
       userId: {
-        type: String,
+        type: ObjectId,
         ref: "User",
+        required: true, // Should be ObjectId if referencing User
+      },
+      name: {
+        type: String,
         required: true,
       },
-      
-      name: { type: String, required: true },
-      email: { type: String, required: true },
+      email: {
+        type: String,
+        required: true,
+      },
       avatar: {
         public_id: {
           type: String,
@@ -69,15 +76,17 @@ const schema = new mongoose.Schema(
       enum: ["Processing", "Shipped", "Delivered"],
       default: "Processing",
     },
-
     orderItems: [
       {
         productId: {
-          type: mongoose.Schema.ObjectId,
+          type: ObjectId,
           ref: "Product",
+          required: [true, "Product ID is required"], // Use ObjectId for Product reference
+        },
+        name: {
+          type: String,
           required: true,
         },
-        name: String,
         image: {
           public_id: {
             type: String,
@@ -88,14 +97,24 @@ const schema = new mongoose.Schema(
             required: true,
           },
         },
-        price: Number,
-        quantity: Number,
+        price: {
+          type: Number,
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+        },
+
+        createdAt:{
+       type:Date,
+       default:Date.now
+        }
       },
+    
     ],
   },
-  {
-    timestamps: true,
-  }
+ 
 );
 
 const Order = mongoose.model("Order", schema);
