@@ -4,43 +4,45 @@ import Order from "../models/orderModel.js"
 import { User } from "../models/userModel.js";
 import { reduceStock } from "../utils/features.js";
 
-const createOrder = asyncHandler(async(req,res,next)=>{
-    const user = await User.findById(req.user._id);
+const createOrder = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user._id);
 
-const {shippingInfo,subtotal,
-    tax,
-    shippingCharges,
-    discount,
-    total,
-    orderItems,
-}=req.body;
+  const { shippingInfo, subtotal, tax, shippingCharges, discount, total, orderItems } = req.body;
 
+  const orderItemsWithTimestamp = orderItems.map(item => ({
+    ...item,
+    createdAt: new Date()  // Set the creation date and time for each order item
+  }));
 
-if (!shippingInfo || !orderItems || !user || !subtotal || !tax || !total)
-return next(new ErrorHandler("Please Enter All Fields", 400));
+  if (!shippingInfo || !orderItemsWithTimestamp || !user || !subtotal || !tax || !total) {
+    return next(new ErrorHandler("Please Enter All Fields", 400));
+  }
 
-const createOrder = await Order.create({
+  const createOrder = await Order.create({
     shippingInfo,
-    orderItems,
+    orderItems: orderItemsWithTimestamp,  // Use the order items with timestamps
     subtotal,
     tax,
     shippingCharges,
     discount,
     total,
-    user:{
-        name:user.username,
-        email:user.email,
-        avatar:user.avatar,
-        userId:user._id,
+    user: {
+      name: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      userId: user._id,
     },
-})
-await reduceStock(orderItems);
-res.status(201).json({
-    succsess:true,
-    message:"order placed successfully",
-    order:createOrder,
-})
-})
+  });
+
+  await reduceStock(orderItemsWithTimestamp);  // Reduce stock for the modified order items
+
+  res.status(201).json({
+    success: true,
+    message: "Order placed successfully",
+    order: createOrder,
+  });
+});
+
 
 const getMyOrder = asyncHandler(async(req,res,next)=>{
   const userId = req.user.id;
