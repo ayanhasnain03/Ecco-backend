@@ -1,8 +1,10 @@
 import express from "express"
-import { applyDiscount, createPayment, newCoupon,getAllCoupan } from "../controllers/paymentController.js"
+import { applyDiscount, createPayment, newCoupon,getAllCoupan, deleteCoupon } from "../controllers/paymentController.js"
+import { authorizeAdmin, isAuthenticatedUser } from "../middlewares/auth.js"
 const router = express.Router()
-router.route("/create").post(createPayment)
-router.route("/coupon/create").post(newCoupon)
-router.route("/coupon/discount").get(applyDiscount)
-router.route("/coupon/all").get(getAllCoupan)
+router.route("/create").post(isAuthenticatedUser,createPayment)
+router.route("/coupon/create").post(isAuthenticatedUser,authorizeAdmin,newCoupon)
+router.route("/coupon/discount").get(isAuthenticatedUser,applyDiscount)
+router.route("/coupon/all").get(isAuthenticatedUser,authorizeAdmin,getAllCoupan)
+router.route("/coupon/:id").delete(deleteCoupon)
 export default router

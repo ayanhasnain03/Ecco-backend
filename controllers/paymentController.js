@@ -52,6 +52,15 @@ const coupons = await Coupon.find({});
     coupons
   });
 });
+export const deleteCoupon = asyncHandler(async (req, res, next) => {
+  const {id}=req.params;
+const coupon = await Coupon.findByIdAndDelete(id);
+if(!coupon) return next(new ErrorHandler("Coupon not get", 400));
+  return res.status(200).json({
+    success: true,
+   message:"Delete Successfully"
+  });
+});
 
 
 export {createPayment,newCoupon}
