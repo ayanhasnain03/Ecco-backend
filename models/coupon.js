@@ -10,6 +10,18 @@ const schema = new mongoose.Schema({
     type: Number,
     required: [true, "Please enter the Discount Amount"],
   },
+  expiryDate: {
+    type: Date,
+    required: true,
+  },
+  used: {
+    type: Boolean,
+    default: false,
+  },
+  createdAt:{
+    type:Date,
+    default:Date.now
+  }
 });
 
  const Coupon = mongoose.model("Coupon", schema);
