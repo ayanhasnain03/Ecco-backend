@@ -20,6 +20,8 @@ const createPayment = asyncHandler(async(req,res,next)=>{
   const { coupon, amount  } = req.body;
   if (!coupon || !amount )
     return next(new ErrorHandler("Please enter coupon, amount", 400));
+  const couponMatch = await Coupon.findOne({ code: coupon });
+  if(couponMatch) return next(new ErrorHandler("Coupon Already Exist",400))
   const expiryDate = new Date();
   expiryDate.setDate(expiryDate.getDate() + 7); // Set expiry date to one week from now
   await Coupon.create({ code: coupon, amount, expiryDate });
@@ -41,6 +43,13 @@ export const applyDiscount = asyncHandler(async (req, res, next) => {
   return res.status(200).json({
     success: true,
     discount: discount.amount,
+  });
+});
+export const getAllCoupan = asyncHandler(async (req, res, next) => {
+const coupons = await Coupon.find({});
+  return res.status(200).json({
+    success: true,
+    coupons
   });
 });
 

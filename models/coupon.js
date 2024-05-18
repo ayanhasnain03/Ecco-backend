@@ -17,12 +17,8 @@ const schema = new mongoose.Schema({
   used: {
     type: Boolean,
     default: false,
-  },
-  createdAt:{
-    type:Date,
-    default:Date.now
   }
-});
+}, { timestamps: true });  // Enable timestamps
 
- const Coupon = mongoose.model("Coupon", schema);
- export default Coupon
+const Coupon = mongoose.model("Coupon", schema);
+export default Coupon;
