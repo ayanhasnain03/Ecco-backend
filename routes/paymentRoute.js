@@ -6,5 +6,5 @@ router.route("/create").post(isAuthenticatedUser,createPayment)
 router.route("/coupon/create").post(isAuthenticatedUser,authorizeAdmin,newCoupon)
 router.route("/coupon/discount").get(isAuthenticatedUser,applyDiscount)
 router.route("/coupon/all").get(isAuthenticatedUser,authorizeAdmin,getAllCoupan)
-router.route("/coupon/:id").delete(deleteCoupon)
+router.route("/coupon/:id").delete(isAuthenticatedUser,authorizeAdmin,deleteCoupon)
 export default router
