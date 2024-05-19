@@ -2,7 +2,7 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import { User } from "../models/userModel.js";
-import { calculatePercentage } from "../utils/features.js";
+import { calculatePercentage, getInventories } from "../utils/features.js";
 
 export const getbarChartData = asyncHandler(async (req, res, next) => {
   const today = new Date();
@@ -134,14 +134,31 @@ lastSixMonthOrders.forEach((order) => {
 });
 
 
+const categoryCount = await getInventories( {categories, productsCount});
+
+const userRatio ={
+  male:usersCount - femaleUserCount,
+  female:femaleUserCount
+}
+
+const changedTransactions = latestTransaction.map((i) => ({
+  _id: i._id,
+  discount: i.discount,
+  amount: i.total,
+  quantity: i.orderItems.length,
+  status: i.status,
+}));
   const stats = {
     changePercent,
+    categoryCount,
     count,
-    categories,
     charts:{
       order:orderMonthCounts,
       revenue:orderMonthRevenue
-    }
+    },
+    userRatio,
+    latestTransaction:changedTransactions
+
   };
 
   return res.status(200).json({

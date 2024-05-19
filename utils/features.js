@@ -66,3 +66,21 @@ export const calculatePercentage = (thisMonth, lastMonth) => {
   // String to Number Conversion: toFixed returns a string. Wrapping it with Number converts it back to a number type.
   return Number(percent.toFixed(0));
 }
+
+
+export const getInventories = async ({ categories, productsCount }) => {
+  if (productsCount === 0) {
+    return [];
+  }
+
+  const categoriesCountPromise = categories.map((category) =>
+    Product.countDocuments({ category })
+  );
+  const categoriesCount = await Promise.all(categoriesCountPromise);
+
+  const categoryCount = categories.map((category, i) => ({
+    [category]: Math.round((categoriesCount[i] / productsCount) * 100),
+  }));
+
+  return categoryCount;
+};
