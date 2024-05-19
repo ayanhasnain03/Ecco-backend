@@ -65,6 +65,7 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
     ordersCount,
     categories,
     femaleUserCount,
+    allOrderRevenue, // Add allOrderRevenue to the destructuring assignment
   ] = await Promise.all([
     thisMonthProductsPromise,
     thisMonthUserPromise,
@@ -79,6 +80,7 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
     Order.countDocuments(),
     Product.distinct("category"),
     User.countDocuments({ gender: "female" }),
+    Order.find({}).select("total"), // Fetch all order totals
   ]);
 
   // Calculate total revenue for this month and last month
@@ -91,19 +93,35 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
     0
   );
 
+  // Sum up revenue from all orders
+  const revenue = allOrderRevenue.reduce(
+    (total, order) => total + (order.total || 0),
+    0
+  );
+
   const count = {
+    revenue,
     product: productsCount,
     user: usersCount,
     order: ordersCount,
   };
 
-const changePercent ={
-  revenue : calculatePercentage(thisMonthRevenue,lastMonthRevenue),
-  product : calculatePercentage(thisMonthProducts.length,lastMonthProducts.length),
-  user:calculatePercentage(thisMonthUser.length,lastMonthUsers.length),
-  order:calculatePercentage(thisMonthOrders.length,lastMonthOrders.length),
-}
+  const changePercent = {
+    revenue: calculatePercentage(thisMonthRevenue, lastMonthRevenue),
+    product: calculatePercentage(
+      thisMonthProducts.length,
+      lastMonthProducts.length
+    ),
+    user: calculatePercentage(thisMonthUser.length, lastMonthUsers.length),
+    order: calculatePercentage(thisMonthOrders.length, lastMonthOrders.length),
+  };
 
+
+
+
+
+
+  
   const stats = {
     changePercent,
     count,
