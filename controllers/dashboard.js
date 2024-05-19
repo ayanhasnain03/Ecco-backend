@@ -58,6 +58,7 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
       $lte: today,
     },
   });
+
   const latestTransactionPromise = Order.find({})
     .select(["orderItems", "discount", "total", "status"])
     .limit(5);
@@ -90,6 +91,10 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
     Product.distinct("category"),
     User.countDocuments({gender:"female"})
   ]);
+//this code store order total revenue
+const thisMonthRevenue = thisMonthOrders.reduce((total,order)=>total + (order.total || 0),0)
+const lastMonthRevenue = lastMonthOrders.reduce((total,order)=>total + (order.total || 0),0)
+
 
   const count ={
     product:productsCount,
@@ -101,6 +106,8 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
     categories
   }
   return res.status(200).json({
+    lastMonthRevenue,
+    thisMonthRevenue,
   stats
   })
 });
