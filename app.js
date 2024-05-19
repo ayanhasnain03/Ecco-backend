@@ -27,12 +27,14 @@ import userRoute from "./routes/userRoute.js";
 import productRoute from "./routes/productRoute.js";
 import orderRoute from "./routes/orderRoute.js";
 import payemntRoute from "./routes/paymentRoute.js";
+import dashboardRoute from "./routes/dashboardRoute.js"
 import ErrorMiddleware from "./middlewares/Error.js";
 
 app.use("/user", userRoute);
 app.use("/product",productRoute );
 app.use("/order",orderRoute );
 app.use("/payment",payemntRoute );
+app.use("/dashboard",dashboardRoute);
 
 export default app;
 
