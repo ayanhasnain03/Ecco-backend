@@ -59,7 +59,7 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
     lastMonthUsers,
     lastMonthOrders,
     latestTransaction,
-    lastSixMonthTransaction,
+    lastSixMonthOrders,
     productsCount,
     usersCount,
     ordersCount,
@@ -116,16 +116,32 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
     order: calculatePercentage(thisMonthOrders.length, lastMonthOrders.length),
   };
 
+  // We're creating two arrays, orderMonthCounts and orderMonthRevenue, each with 6 elements initialized to 0. These arrays will store the counts and revenue for each of the last six months.
+const orderMonthCounts = new Array(6).fill(0);
+const orderMonthRevenue=new Array(6).fill(0);
+// We're iterating through each order in the lastSixMonthOrders array.
+
+lastSixMonthOrders.forEach((order) => {
+  const creationDate = order.createdAt;
+  // We're calculating the difference in months (monthDiff) between the current month and the month when the order was created. This ensures the order is within the last six months.
+  const monthDiff = (today.getMonth() - creationDate.getMonth() + 12) %12;
+  // If the order falls within the last six months (monthDiff is less than 6)
+  if(monthDiff < 6){
+    // We're incrementing the count (orderMonthCounts) and adding the order's total revenue (order.total) to the corresponding month's revenue (orderMonthRevenue). The index of the corresponding month is calculated using 6 - monthDiff - 1. This ensures that the counts and revenue are stored in the correct position in the arrays, with the most recent month at index 0 and the oldest month at index 5.
+    orderMonthCounts[6 - monthDiff -1] += 1;
+    orderMonthRevenue[6 - monthDiff -1] += order.total;
+  }
+});
 
 
-
-
-
-  
   const stats = {
     changePercent,
     count,
     categories,
+    charts:{
+      order:orderMonthCounts,
+      revenue:orderMonthRevenue
+    }
   };
 
   return res.status(200).json({
