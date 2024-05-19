@@ -2,66 +2,55 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import { User } from "../models/userModel.js";
+import { calculatePercentage } from "../utils/features.js";
+
 export const getbarChartData = asyncHandler(async (req, res, next) => {
   const today = new Date();
   const sixMonthAgo = new Date();
-  sixMonthAgo.setMonth(sixMonthAgo.getMonth() - 6); // This line modifies the sixMonthAgo date object by subtracting 6 months from its current month value.
+  sixMonthAgo.setMonth(sixMonthAgo.getMonth() - 6);
+
   const thisMonth = {
-    start: new Date(today.getFullYear(), today.getMonth(), 1), //Represents the first day of the current month
-    end: today, //Represents the current date and time.
+    start: new Date(today.getFullYear(), today.getMonth(), 1),
+    end: today,
   };
+
   const lastMonth = {
-    start: new Date(today.getFullYear(), today.getMonth() - 1, 1), //Represents the first day of the previous month
-    end: new Date(today.getFullYear(), today.getMonth(), 0), //Represents the last day of the previous month.
+    start: new Date(today.getFullYear(), today.getMonth() - 1, 1),
+    end: new Date(today.getFullYear(), today.getMonth(), 0),
   };
+
   const thisMonthProductsPromise = Product.find({
-    createdAt: {
-      $gte: thisMonth.start,
-      $lte: thisMonth.end,
-    },
+    createdAt: { $gte: thisMonth.start, $lte: thisMonth.end },
   });
+
   const lastMonthProductsPromise = Product.find({
-    createdAt: {
-      $gte: lastMonth.start,
-      $lte: lastMonth.end,
-    },
+    createdAt: { $gte: lastMonth.start, $lte: lastMonth.end },
   });
 
   const thisMonthUserPromise = User.find({
-    createdAt: {
-      $gte: thisMonth.start,
-      $lte: thisMonth.end,
-    },
+    createdAt: { $gte: thisMonth.start, $lte: thisMonth.end },
   });
 
   const lastMonthUserPromise = User.find({
-    createdAt: {
-      $gte: lastMonth.start,
-      $lte: lastMonth.end,
-    },
+    createdAt: { $gte: lastMonth.start, $lte: lastMonth.end },
   });
+
   const thisMonthOrderPromise = Order.find({
-    createdAt: {
-      $gte: thisMonth.start,
-      $lte: thisMonth.end,
-    },
+    createdAt: { $gte: thisMonth.start, $lte: thisMonth.end },
   });
+
   const lastMonthOrderPromise = Order.find({
-    createdAt: {
-      $gte: lastMonth.start,
-      $lte: lastMonth.end,
-    },
+    createdAt: { $gte: lastMonth.start, $lte: lastMonth.end },
   });
+
   const lastSixMonthOrdersPromise = Order.find({
-    createdAt: {
-      $gte: sixMonthAgo,
-      $lte: today,
-    },
+    createdAt: { $gte: sixMonthAgo, $lte: today },
   });
 
   const latestTransactionPromise = Order.find({})
     .select(["orderItems", "discount", "total", "status"])
     .limit(5);
+
   const [
     thisMonthProducts,
     thisMonthUser,
@@ -89,25 +78,39 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
     User.countDocuments(),
     Order.countDocuments(),
     Product.distinct("category"),
-    User.countDocuments({gender:"female"})
+    User.countDocuments({ gender: "female" }),
   ]);
-//this code store order total revenue
-const thisMonthRevenue = thisMonthOrders.reduce((total,order)=>total + (order.total || 0),0)
-const lastMonthRevenue = lastMonthOrders.reduce((total,order)=>total + (order.total || 0),0)
 
+  // Calculate total revenue for this month and last month
+  const thisMonthRevenue = thisMonthOrders.reduce(
+    (total, order) => total + (order.total || 0),
+    0
+  );
+  const lastMonthRevenue = lastMonthOrders.reduce(
+    (total, order) => total + (order.total || 0),
+    0
+  );
 
-  const count ={
-    product:productsCount,
-    user:usersCount,
-    order:ordersCount
-  }
-  const stats={
+  const count = {
+    product: productsCount,
+    user: usersCount,
+    order: ordersCount,
+  };
+
+const changePercent ={
+  revenue : calculatePercentage(thisMonthRevenue,lastMonthRevenue),
+  product : calculatePercentage(thisMonthProducts.length,lastMonthProducts.length),
+  user:calculatePercentage(thisMonthUser.length,lastMonthUsers.length),
+  order:calculatePercentage(thisMonthOrders.length,lastMonthOrders.length),
+}
+
+  const stats = {
+    changePercent,
     count,
-    categories
-  }
+    categories,
+  };
+
   return res.status(200).json({
-    lastMonthRevenue,
-    thisMonthRevenue,
-  stats
-  })
+    stats,
+  });
 });

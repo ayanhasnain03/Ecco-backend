@@ -54,3 +54,15 @@ export const reduceStock = async (orderItems) => {
     await product.save();
   }
 };
+
+
+export const calculatePercentage = (thisMonth, lastMonth) => {
+  if (lastMonth === 0) {
+    // If lastMonth is 0, return 100% if thisMonth > 0, otherwise return 0%
+    return thisMonth > 0 ? 100 : 0;
+  }
+  const percent = (thisMonth / lastMonth) * 100;
+  // Rounding: toFixed(0) ensures that the number is rounded to the nearest whole number.
+  // String to Number Conversion: toFixed returns a string. Wrapping it with Number converts it back to a number type.
+  return Number(percent.toFixed(0));
+}
