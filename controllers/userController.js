@@ -28,7 +28,7 @@ const registerUser = asyncHandler(async (req, res, next) => {
     avatar: {
       public_id: mycloud.public_id,
       url: mycloud.secure_url,
-    },
+    }
   });
   sendToken(res, user, "Registerd Succesfully", 201);
 });
