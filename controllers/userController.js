@@ -10,7 +10,7 @@ import crypto from "crypto";
 import Product from "../models/productModel.js";
 const registerUser = asyncHandler(async (req, res, next) => {
   const file = req.file;
-  const { username, email, password, gender } = req.body;
+  const { username, email, password, gender,dob } = req.body;
 
   if (!username || !email || !password || !gender) {
     return next(new ErrorHandler("required all fields", 400));
@@ -24,7 +24,7 @@ const registerUser = asyncHandler(async (req, res, next) => {
     email,
     password,
     gender,
-    dob:Number(34-23-2006),
+    dob,
     avatar: {
       public_id: mycloud.public_id,
       url: mycloud.secure_url,
@@ -71,6 +71,7 @@ const getMyProfile = asyncHandler(async (req, res, next) => {
     _id:user._id,
     username:user.username,
     email:user.email,
+    dob:user.dob,
     gender:user.gender,
     role:user.role,
     avatar:user.avatar,

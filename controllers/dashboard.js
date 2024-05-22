@@ -155,3 +155,115 @@ export const yearDataCharts = asyncHandler(async (req, res, next) => {
     charts,
   });
 });
+
+
+export const getPieCharts = asyncHandler(async (req, res, next) => {
+  try {
+    const allOrderPromise = Order.find({}).select([
+      'total',
+      'discount',
+      'subtotal',
+      'tax',
+      'shippingCharges',
+    ]);
+
+    const [
+      processingOrder,
+      shippedOrder,
+      deliveredOrder,
+      categories,
+      productsCount,
+      outOfStock,
+      allOrders,
+      allUsers,
+      adminUsers,
+      customerUsers,
+    ] = await Promise.all([
+      Order.countDocuments({ status: 'Processing' }),
+      Order.countDocuments({ status: 'Shipped' }),
+      Order.countDocuments({ status: 'Delivered' }),
+      Product.distinct('category'),
+      Product.countDocuments(),
+      Product.countDocuments({ stock: 0 }),
+      allOrderPromise,
+      User.find({}).select(['dob']),
+      User.countDocuments({ role: 'admin' }),
+      User.countDocuments({ role: 'user' }),
+    ]);
+
+    const orderFullfillment = {
+      processing: processingOrder,
+      shipped: shippedOrder,
+      delivered: deliveredOrder,
+    };
+
+    const productCategories = await getInventories({
+      categories,
+      productsCount,
+    });
+
+    const stockAvailability = {
+      inStock: productsCount - outOfStock,
+      outOfStock,
+    };
+
+    const grossIncome = allOrders.reduce((prev, order) => prev + (order.total || 0), 0);
+    const discount = allOrders.reduce((prev, order) => prev + (order.discount || 0), 0);
+    const productionCost = allOrders.reduce((prev, order) => prev + (order.shippingCharges || 0), 0);
+    const burnt = allOrders.reduce((prev, order) => prev + (order.tax || 0), 0);
+    const marketingCost = Math.round(grossIncome * 0.3);
+    const netMargin = grossIncome - discount - productionCost - burnt - marketingCost;
+
+    const revenueDistribution = {
+      netMargin,
+      discount,
+      productionCost,
+      burnt,
+      marketingCost,
+    };
+
+    const calculateAge = (dob) => {
+      const diff = Date.now() - new Date(dob).getTime();
+      const ageDate = new Date(diff);
+      return Math.abs(ageDate.getUTCFullYear() - 1970);
+    };
+
+    const usersAgeGroup = {
+      teen: 0,
+      adult: 0,
+      old: 0,
+    };
+
+    allUsers.forEach((user) => {
+      const age = calculateAge(user.dob);
+      if (age < 20) {
+        usersAgeGroup.teen += 1;
+      } else if (age >= 20 && age < 40) {
+        usersAgeGroup.adult += 1;
+      } else if (age >= 40) {
+        usersAgeGroup.old += 1;
+      }
+    });
+
+    const adminCustomer = {
+      admin: adminUsers,
+      customer: customerUsers,
+    };
+
+    const charts = {
+      orderFullfillment,
+      productCategories,
+      stockAvailability,
+      revenueDistribution,
+      usersAgeGroup,
+      adminCustomer,
+    };
+
+    return res.status(200).json({
+      success: true,
+      charts,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
