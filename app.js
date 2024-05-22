@@ -34,7 +34,7 @@ app.use("/user", userRoute);
 app.use("/product",productRoute );
 app.use("/order",orderRoute );
 app.use("/payment",payemntRoute );
-app.use("/dashboard",dashboardRoute);
+app.use("/admin/dashboard",dashboardRoute);
 
 export default app;
 

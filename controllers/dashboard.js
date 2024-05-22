@@ -2,46 +2,12 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import { User } from "../models/userModel.js";
-import { calculatePercentage, getInventories } from "../utils/features.js";
+import {  getChartData, getInventories } from "../utils/features.js";
 
 export const getbarChartData = asyncHandler(async (req, res, next) => {
   const today = new Date();
   const sixMonthAgo = new Date();
   sixMonthAgo.setMonth(sixMonthAgo.getMonth() - 6);
-
-  const thisMonth = {
-    start: new Date(today.getFullYear(), today.getMonth(), 1),
-    end: today,
-  };
-
-  const lastMonth = {
-    start: new Date(today.getFullYear(), today.getMonth() - 1, 1),
-    end: new Date(today.getFullYear(), today.getMonth(), 0),
-  };
-
-  const thisMonthProductsPromise = Product.find({
-    createdAt: { $gte: thisMonth.start, $lte: thisMonth.end },
-  });
-
-  const lastMonthProductsPromise = Product.find({
-    createdAt: { $gte: lastMonth.start, $lte: lastMonth.end },
-  });
-
-  const thisMonthUserPromise = User.find({
-    createdAt: { $gte: thisMonth.start, $lte: thisMonth.end },
-  });
-
-  const lastMonthUserPromise = User.find({
-    createdAt: { $gte: lastMonth.start, $lte: lastMonth.end },
-  });
-
-  const thisMonthOrderPromise = Order.find({
-    createdAt: { $gte: thisMonth.start, $lte: thisMonth.end },
-  });
-
-  const lastMonthOrderPromise = Order.find({
-    createdAt: { $gte: lastMonth.start, $lte: lastMonth.end },
-  });
 
   const lastSixMonthOrdersPromise = Order.find({
     createdAt: { $gte: sixMonthAgo, $lte: today },
@@ -52,12 +18,6 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
     .limit(5);
 
   const [
-    thisMonthProducts,
-    thisMonthUser,
-    thisMonthOrders,
-    lastMonthProducts,
-    lastMonthUsers,
-    lastMonthOrders,
     latestTransaction,
     lastSixMonthOrders,
     productsCount,
@@ -67,12 +27,6 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
     femaleUserCount,
     allOrderRevenue, // Add allOrderRevenue to the destructuring assignment
   ] = await Promise.all([
-    thisMonthProductsPromise,
-    thisMonthUserPromise,
-    thisMonthOrderPromise,
-    lastMonthProductsPromise,
-    lastMonthUserPromise,
-    lastMonthOrderPromise,
     latestTransactionPromise,
     lastSixMonthOrdersPromise,
     Product.countDocuments(),
@@ -83,15 +37,7 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
     Order.find({}).select("total"), // Fetch all order totals
   ]);
 
-  // Calculate total revenue for this month and last month
-  const thisMonthRevenue = thisMonthOrders.reduce(
-    (total, order) => total + (order.total || 0),
-    0
-  );
-  const lastMonthRevenue = lastMonthOrders.reduce(
-    (total, order) => total + (order.total || 0),
-    0
-  );
+
 
   // Sum up revenue from all orders
   const revenue = allOrderRevenue.reduce(
@@ -106,15 +52,7 @@ export const getbarChartData = asyncHandler(async (req, res, next) => {
     order: ordersCount,
   };
 
-  const changePercent = {
-    revenue: calculatePercentage(thisMonthRevenue, lastMonthRevenue),
-    product: calculatePercentage(
-      thisMonthProducts.length,
-      lastMonthProducts.length
-    ),
-    user: calculatePercentage(thisMonthUser.length, lastMonthUsers.length),
-    order: calculatePercentage(thisMonthOrders.length, lastMonthOrders.length),
-  };
+
 
   // We're creating two arrays, orderMonthCounts and orderMonthRevenue, each with 6 elements initialized to 0. These arrays will store the counts and revenue for each of the last six months.
 const orderMonthCounts = new Array(6).fill(0);
@@ -149,7 +87,6 @@ const changedTransactions = latestTransaction.map((i) => ({
   status: i.status,
 }));
   const stats = {
-    changePercent,
     categoryCount,
     count,
     charts:{
@@ -163,5 +100,58 @@ const changedTransactions = latestTransaction.map((i) => ({
 
   return res.status(200).json({
     stats,
+  });
+});
+
+export const yearDataCharts = asyncHandler(async (req, res, next) => {
+
+    const today = new Date();
+
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+    const sixMonthProductPromise = Product.find({
+      createdAt: {
+        $gte: sixMonthsAgo,
+        $lte: today,
+      },
+    }).select("createdAt");
+
+    const sixMonthUsersPromise = User.find({
+      createdAt: {
+        $gte: sixMonthsAgo,
+        $lte: today,
+      },
+    }).select("createdAt");
+
+    const twelveMonthOrdersPromise = Order.find({
+      createdAt: {
+        $gte: twelveMonthsAgo,
+        $lte: today,
+      },
+    }).select("createdAt");
+
+    const [products, users, orders] = await Promise.all([
+      sixMonthProductPromise,
+      sixMonthUsersPromise,
+      twelveMonthOrdersPromise,
+    ]);
+
+    const productCounts = getChartData({ length: 12, today, docArr: products });
+    const usersCounts = getChartData({ length: 12, today, docArr: users });
+    const ordersCounts = getChartData({ length: 12, today, docArr: orders });
+
+  const  charts = {
+      users: usersCounts,
+      products: productCounts,
+      orders: ordersCounts,
+    };
+
+  return res.status(200).json({
+    success: true,
+    charts,
   });
 });
